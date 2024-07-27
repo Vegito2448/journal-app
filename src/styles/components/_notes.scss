@@ -1,0 +1,51 @@
+@use '../base/settings' as settings;
+
+.notes__main-content {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  flex: 1;
+}
+
+.notes__appbar {
+  align-items: center;
+  background-color: hsl(settings.$primary);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+}
+
+.notes__content {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 2rem;
+}
+
+.notes__title-input,
+.notes__textarea {
+  border: none;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.notes__title-input {
+  color: hsl(settings.$dark-grey);
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.notes__textarea {
+  color: hsl(settings.$dark-grey);
+  font-size: 2rem;
+  flex: 1 1 auto;
+  resize: none;
+}
+
+.notes__image img {
+  box-shadow: .5rem .5rem 1rem rgba(0, 0, 0, .1);
+}

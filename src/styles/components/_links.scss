@@ -1,0 +1,11 @@
+@use '../base/settings' as settings;
+
+.link {
+  text-decoration: none;
+  color: hsl(settings.$dark-grey);
+
+  &:hover {
+    color: hsl(settings.$primary);
+    text-decoration: underline;
+  }
+}

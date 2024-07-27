@@ -1,0 +1,16 @@
+@use "../base/settings" as settings;
+
+.nothing__main-content {
+  align-items: center;
+  background-color: hsl(settings.$primary);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100vh;
+  flex: 1;
+
+  &>p {
+    text-align: center;
+  }
+}
