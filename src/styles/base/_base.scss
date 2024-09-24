@@ -36,6 +36,28 @@ main {
   margin-bottom: 2rem;
 }
 
+.my-1 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.my-5 {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.mx-1 {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.mx-5 {
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
 .pointer {
   cursor: pointer;
+}
+.wait {
+  cursor: wait;
 }

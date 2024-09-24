@@ -1,27 +1,33 @@
 import {
   createBrowserRouter,
+  Navigate,
   RouteObject
 } from "react-router-dom";
 import { AuthLayout, MainLayout } from "../layouts";
-import { LoginScreen } from "../pages";
+import { PrivateRoute } from "./PrivateRoute";
+import { PublicRoute } from "./PublicRoute";
 import { authRoutes, mainRoutes } from "./routesConfig";
 
-const mainPath = import.meta.env.DEV ? "/" : "/journal-app/";
+export const mainPath = import.meta.env.DEV ? "/" : "/journal-app/";
 
 export const allRoutes: RouteObject[] = [
   {
     path: `${mainPath}auth/`,
-    element: <AuthLayout />,
+    element: <PublicRoute children={<AuthLayout />} />,
     children: authRoutes
   },
   {
     path: `${mainPath}`,
-    element: <MainLayout />,
+    element: <PrivateRoute children={<MainLayout />} />,
     children: mainRoutes
   },
   {
     path: "*",
-    element: <LoginScreen />
+    element: <Navigate
+      to={`${mainPath}auth/login/`}
+      replace
+    />
+
   }
 ];
 

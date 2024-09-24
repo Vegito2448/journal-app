@@ -1,0 +1,11 @@
+@use '../base/settings' as settings;
+
+.has-error {
+  background-color: hsl(settings.$error);
+  color: white;
+  font-weight: 600;
+  font-size: 1.2rem;
+  border-radius: .5rem;
+  padding: .5rem;
+  display: block;
+}

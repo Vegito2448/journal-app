@@ -1,4 +1,5 @@
 @use '../base/settings' as settings;
+@use 'sass:color';
 
 .btn {
   background-color: transparent;
@@ -15,7 +16,7 @@
   }
 
   &:hover {
-    color: darken($color: white, $amount: 15);
+    color: color.adjust($color: white, $lightness: -15%);
 
   }
 
@@ -32,11 +33,11 @@
 
 
   &:hover {
-    background-color: lighten($color: hsl(settings.$primary), $amount: 15);
+    background-color: color.adjust($color: hsl(settings.$primary), $lightness: 15%);
   }
 
   &:disabled {
-    background-color: darken($color: hsl(settings.$primary), $amount: 5);
+    background-color: color.adjust($color: hsl(settings.$primary), $lightness: -5%);
     cursor: not-allowed;
   }
 }
@@ -44,4 +45,21 @@
 .btn-block {
   display: block;
   width: 100%;
+}
+.btn-danger {
+  background-color: hsl(settings.$error);
+  border-radius: .2rem;
+  font-weight: 700;
+  margin-top: 1rem;
+  padding: 1rem;
+  text-align: center;
+
+  &:hover {
+    background-color: color.adjust($color: hsl(settings.$error), $lightness: 15%);
+  }
+
+  &:disabled {
+    background-color: color.adjust($color: hsl(settings.$error), $lightness: -5%);
+    cursor: not-allowed;
+  }
 }

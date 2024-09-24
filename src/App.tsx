@@ -1,10 +1,13 @@
 import { AppRouter } from "./router";
+import { ReduxProvider } from "./store";
 
 
 function App() {
 
   return (
-    <AppRouter />
+    <ReduxProvider>
+      <AppRouter />
+    </ReduxProvider>
   );
 }
 

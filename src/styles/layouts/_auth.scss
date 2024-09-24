@@ -1,4 +1,5 @@
 @use '../base/settings' as settings;
+@use 'sass:color';
 
 .auth__main {
   display: flex;
@@ -8,6 +9,7 @@
   margin: 0;
   height: 100vh;
   width: 100vw;
+  align-items: center;
 }
 
 .auth__box-container {
@@ -18,13 +20,14 @@
   border-radius: 0.5rem;
   padding: 2rem;
   margin: 25rem;
+  height: fit-content;
 }
 
 .auth__title {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: darken($color: hsl(settings.$primary), $amount: 20);
+  color: color.adjust($color: hsl(settings.$primary), $lightness: -20%);
 }
 
 .auth__input {

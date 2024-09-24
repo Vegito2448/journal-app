@@ -1,21 +1,28 @@
+import { useGetNotesQuery } from "../../../store";
 import { JournalEntry } from "./JournalEntry";
 
 export const JournalEntries = () => {
 
-  const entries = Array.from({ length: 10 }).map((_, i) => i + 1);
+  const { data: notes, isLoading } = useGetNotesQuery();
 
   return (
     <div
       className="journal__entries"
     >
-      {
-        entries.map(entry => (
+      {Boolean(!isLoading && notes && notes.length) &&
+        notes!.map(note => (
           <JournalEntry
-            key={entry}
-
+            key={note.id}
+            {...note}
           />
         ))
       }
+
+      <div>
+        {isLoading ? 'Loading...' : notes && notes.length === 0 &&
+          'There are no notes'
+        }
+      </div>
     </div>
   );
 };
