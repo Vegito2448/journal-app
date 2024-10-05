@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ReactiveSwal } from "../components";
 import { useAppSelector } from "../store";
 import { mainPath } from "./mainRouter";
@@ -40,5 +40,8 @@ export const PrivateRoute = ({ children }: PrivateRouteProps) => {
   }, [error, loading]);
 
 
-  return children;
+  return user?.uid ? children : <Navigate
+    to={`${mainPath}auth/login`}
+    replace
+  />;
 };

@@ -101,7 +101,7 @@ export const RegisterScreen = () => {
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
       >
-        {() => (
+        {({ isValid }) => (
           <Form
             className="animate__animated animate__fadeIn animate__faster"
           >
@@ -122,7 +122,7 @@ export const RegisterScreen = () => {
             <button
               type="submit"
               className="btn btn-primary btn-block"
-              disabled={loading}
+              disabled={loading || !isValid}
             >Sign Up</button>
           </Form>
         )}

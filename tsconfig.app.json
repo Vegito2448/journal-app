@@ -21,7 +21,19 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": [
+      "vitest/globals",
+      "vitest/importMeta"
+    ]
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "**/*.ts",
+    "**/*.tsx",
+    "./vitest.setup.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

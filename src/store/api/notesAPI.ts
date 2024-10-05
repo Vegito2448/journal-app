@@ -1,25 +1,8 @@
+// notesAPI.ts
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, setDoc, Timestamp, updateDoc } from "firebase/firestore";
-import { ReactiveSwal } from "../../components";
-import { db } from "../../firebase";
 import { Note } from "../../types";
 import { AppDispatch, RootState } from "../store";
-// Fetching notes with firebase
-
-const LoadingNoteAlert = (title: string) => ReactiveSwal.fire({
-  title: title || 'Saving Note',
-  allowOutsideClick: false,
-  didOpen: () => {
-    ReactiveSwal.showLoading();
-  }
-});
-
-const ErrorNoteAlert = (error: Error | string) => ReactiveSwal.fire({
-  icon: 'error',
-  title: 'Error',
-  text: 'An error occurred; Error: ' + (typeof error === 'string' ? error : error?.message || ''),
-});
-
+import { createNote, deleteNote, fetchActiveNote, fetchNotes, setActiveNote, updateNote } from "./notesActions";
 
 export const notesApi = createApi({
   reducerPath: "notesApi",
@@ -28,223 +11,96 @@ export const notesApi = createApi({
   endpoints: (builder) => ({
     getNotes: builder.query<Note[], void>({
       keepUnusedDataFor: 3600,
-      async queryFn(_, queryApi) {
+      async queryFn(_, { getState }) {
         try {
+          const { auth: { user } } = getState() as RootState;
+          if (!user || !user.uid) throw new Error("User not found");
 
-
-          const { auth: { user } } = queryApi.getState() as RootState;
-          if (!user) throw new Error("User not found");
-          LoadingNoteAlert('Loading Notes...');
-
-          const notesRef = collection(db, `${user.uid}/journal/notes`);
-
-          const querySnapshot = await getDocs(notesRef);
-
-          const notes: Note[] = [];
-          if (!querySnapshot.empty)
-            querySnapshot.forEach((doc) => {
-
-              const note = doc.data();
-
-              notes.push({
-                id: doc.id,
-                ...note,
-                date: (note.date as Timestamp).toDate().toISOString()
-              } as Note);
-
-            });
-
-          ReactiveSwal.close();
-
+          const notes = await fetchNotes(user.uid);
           return { data: notes };
         } catch (error) {
-          const err = error as Error;
-          ErrorNoteAlert(err);
-          return { error: err?.message || err || "An error occurred" };
+          return { error: (error as Error).message };
         }
       },
       providesTags: (result) =>
-        // is result available?
         result
-          ? // successful query
-          [
+          ? [
             ...result.map(({ id }) => ({ type: 'Notes', id } as const)),
             { type: 'Notes', id: 'LIST' },
           ]
-          : // an error occurred, but we still want to refetch this query when `{ type: 'Notes', id: 'LIST' }` is invalidated
-          [{ type: 'Notes', id: 'LIST' }],
+          : [{ type: 'Notes', id: 'LIST' }],
     }),
     getActiveNote: builder.query<Note | null, void>({
       keepUnusedDataFor: 3600,
-      async queryFn(_, queryApi) {
+      async queryFn(_, { getState }) {
         try {
-          const { auth: { user } } = queryApi.getState() as RootState;
-          if (!user) throw new Error("User not found");
-          LoadingNoteAlert('Loading Note...');
+          const { auth: { user } } = getState() as RootState;
+          if (!user || !user.uid) throw new Error("User not found");
 
-          const journalDocRef = doc(db, `${user.uid}/journal`);
-          const journalDoc = await getDoc(journalDocRef);
-
-          if (journalDoc.exists()) {
-            const activeNote = journalDoc.data().active as Note;
-
-            ReactiveSwal.close();
-            return {
-              data: activeNote ? {
-                ...activeNote,
-                date: (activeNote.date as Timestamp).toDate().toISOString()
-              } : null
-            };
-          } else {
-            ReactiveSwal.close();
-
-            return { data: null }; // Or throw an error if the journal document doesn't exist
-          }
+          const activeNote = await fetchActiveNote(user.uid);
+          return { data: activeNote };
         } catch (error) {
-          const err = error as Error;
-
-          ErrorNoteAlert(err);
-
-          return { error: err?.message || err || "An error occurred" };
+          return { error: (error as Error)?.message || 'An error occurred' };
         }
       },
       providesTags: ['ActiveNote']
     }),
-    addNote: builder.mutation({
-      async queryFn(_, api) {
+    addNote: builder.mutation<Note, void>({
+      async queryFn(_, { getState }) {
         try {
+          const { auth: { user } } = getState() as RootState;
+          if (!user || !user.uid) throw new Error("User not found");
 
-          const { auth: { user } } = api.getState() as RootState;
-
-          if (!user) throw new Error("User not found");
-          LoadingNoteAlert('Creating Note...');
-
-          const note = {
-            title: "New Note",
-            body: "New Note Body",
-            url: "",
-            date: new Date(),
-          };
-
-          const notesRef = await addDoc(collection(db, `${user.uid}/journal/notes`), note);
-
-          const createdNote: Note = {
-            ...note,
-            id: notesRef.id,
-          };
-
-          if (!notesRef.id) throw new Error("Note not created");
-
-          await setDoc(doc(db, `${user.uid}/journal`), {
-            active: createdNote,
-          }, { merge: true });
-
-          ReactiveSwal.close();
-
-          return {
-            data: {
-              ...createdNote,
-              date: (createdNote.date as Date).toISOString(),
-            }
-          };
-
+          const createdNote = await createNote(user.uid);
+          return { data: createdNote };
         } catch (error) {
-          const err = error as Error;
-          ErrorNoteAlert(err);
-          return { error: err?.message || err || "An error occurred" };
+          return { error: (error as Error)?.message || 'An error occurred' };
         }
       },
       invalidatesTags: [{ type: 'Notes', id: 'LIST' }, 'ActiveNote'],
-
     }),
     setActiveNote: builder.mutation<Note | null, Note | null>({
-      async queryFn(note, api) {
-
-
+      async queryFn(note, { getState }) {
         try {
+          const { auth: { user } } = getState() as RootState;
+          if (!user || !user.uid) throw new Error("User not found");
 
-          const { auth: { user } } = api.getState() as RootState;
-
-          if (!user) throw new Error("User not found");
-          LoadingNoteAlert('Loading...');
-          // Update the journal document with the active note
-          await setDoc(doc(db, `${user.uid}/journal`), {
-            active: note ? {
-              ...note,
-              date: new Date(note.date as string),
-            } : null,
-          }, { merge: true });
-          ReactiveSwal.close();
-          return { data: note || null };
+          const updatedNote = await setActiveNote(user.uid, note);
+          return { data: updatedNote };
         } catch (error) {
-
-          const err = error as Error;
-
-          ErrorNoteAlert(err);
-
-          return { error: err?.message || err || "An error occurred" };
+          return { error: (error as Error)?.message || 'An error occurred' };
         }
       },
       invalidatesTags: ['ActiveNote'],
     }),
     updateNote: builder.mutation<Note, Note>({
-      async queryFn({ id, ...note }, api) {
+      async queryFn(note, { getState }) {
         try {
-          const { auth: { user } } = api.getState() as RootState;
-          if (!user) throw new Error("User not found");
-          LoadingNoteAlert('Saving...');
+          const { auth: { user } } = getState() as RootState;
+          if (!user || !user.uid) throw new Error("User not found");
 
-          const noteRef = doc(db, `${user.uid}/journal/notes/${id}`); // Added id to the path
-          await updateDoc(noteRef, { ...note, date: new Date(note.date as string) });
-
-          await api.dispatch(notesApi.endpoints.setActiveNote.initiate({ id, ...note }));
-
-          // No need to check noteRef.id as updateDoc doesn't return a new id
-
-          ReactiveSwal.close();
-
-          return { data: { id, ...note } };
+          const updatedNote = await updateNote(user.uid, note);
+          return { data: updatedNote };
         } catch (error) {
-          const err = error as Error;
-
-          ReactiveSwal.close();
-
-          ErrorNoteAlert(err);
-
-          return { error: err?.message || err || "An error occurred" };
+          return { error: (error as Error)?.message || 'An error occurred' };
         }
       },
       invalidatesTags: ['Notes', 'ActiveNote'],
     }),
     deleteNote: builder.mutation<string, string>({
-      async queryFn(id, api) {
+      async queryFn(id, { getState, dispatch }) {
         try {
-          const { auth: { user } } = api.getState() as RootState;
-          if (!user) throw new Error("User not found");
-          LoadingNoteAlert('Deleting...');
+          const { auth: { user } } = getState() as RootState;
+          if (!user || !user.uid) throw new Error("User not found");
 
-          // Set active note to null
-
-
-          // Delete the note
-          const noteRef = doc(db, `${user.uid}/journal/notes/${id}`);
-
-          await deleteDoc(noteRef);
-
-          await api.dispatch(notesApi.endpoints.setActiveNote.initiate(null));
-
-
-
-          ReactiveSwal.close();
-          return { data: id };
+          const deletedNoteId = await deleteNote(user.uid, id);
+          await dispatch(notesApi.endpoints.setActiveNote.initiate(null));
+          return { data: deletedNoteId };
         } catch (error) {
-          const err = error as Error;
-          ReactiveSwal.close();
-          ErrorNoteAlert(err);
-          return { error: err?.message || err || "An error occurred" };
+          return { error: (error as Error)?.message || 'An error occurred' };
         }
       },
-      invalidatesTags: ['Notes'],
+      invalidatesTags: ['Notes',],
     }),
   })
 });
@@ -253,5 +109,11 @@ export const invalidateAllTags = () => (dispatch: AppDispatch) => {
   dispatch(notesApi.util.invalidateTags(['Notes', 'ActiveNote']));
 };
 
-export const { useGetNotesQuery, useAddNoteMutation, useGetActiveNoteQuery, useSetActiveNoteMutation, useUpdateNoteMutation, useDeleteNoteMutation } = notesApi;
-
+export const {
+  useGetNotesQuery,
+  useAddNoteMutation,
+  useGetActiveNoteQuery,
+  useSetActiveNoteMutation,
+  useUpdateNoteMutation,
+  useDeleteNoteMutation
+} = notesApi;

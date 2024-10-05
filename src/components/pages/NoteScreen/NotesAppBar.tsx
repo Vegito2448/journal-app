@@ -2,7 +2,7 @@ import moment from "moment";
 import { ChangeEvent, useRef } from "react";
 import { useUpdateNoteMutation } from "../../../store";
 import { Note } from "../../../types";
-import { ReactiveSwal } from "../../ui";
+import { uploadImage } from "../../../utils";
 
 export const NotesAppBar = (note: Note) => {
 
@@ -24,45 +24,19 @@ export const NotesAppBar = (note: Note) => {
   };
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-
     const file = e.target.files?.[0];
     if (file) {
-      const cloudUrl = 'https://api.cloudinary.com/v1_1/m1dxr7hw/image/upload';
-
-      const formData = new FormData();
-
-      formData.append('file', file);
-      formData.append('upload_preset', 'm1dxr7hw');
-      formData.append('api_key', '685115225575362');
-
       try {
-        const resp = await fetch(cloudUrl, {
-          method: 'POST',
-          body: formData,
-
-        });
-        const cloudResp = await resp.json();
-
-        if (!resp.ok) throw cloudResp;
-
+        const secureUrl = await uploadImage(file);
         return updateNote({
           ...note,
-          url: cloudResp.secure_url
+          url: secureUrl
         });
-
       } catch (error) {
-        const err = error as Error;
-        ReactiveSwal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: err?.message || 'An error occurred while uploading the image'
-        });
+        console.error(error);
       }
-
-
     }
-
-  }
+  };
 
   return (
     <div

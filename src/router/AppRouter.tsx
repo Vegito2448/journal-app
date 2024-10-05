@@ -1,5 +1,6 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { useEffect } from "react";
+import { CgSpinnerTwo } from "react-icons/cg";
 import { RouterProvider } from "react-router-dom";
 import { auth } from "../firebase";
 import { login, useAppDispatch } from "../store";
@@ -7,16 +8,12 @@ import { router } from "./mainRouter";
 
 export const AppRouter = () => {
 
-  // const { token, user } = useAppSelector(({ auth }) => auth);
-
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-
     onAuthStateChanged(auth, async (user) => {
       try {
-
-        if (!user?.uid) return new Error('No user found');
+        if (!user?.uid) throw new Error('No user found');
 
         const token = await user.getIdToken();
 
@@ -45,10 +42,8 @@ export const AppRouter = () => {
 
   }, [dispatch]);
 
-  // if (!token || !user) return <h1>Wait Please...</h1>;
-
-
   return <RouterProvider
     router={router}
+    fallbackElement={<CgSpinnerTwo size={50} />}
   />;
 };

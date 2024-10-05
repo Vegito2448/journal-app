@@ -1,8 +1,8 @@
 import { User } from "./user";
 
 export interface AuthState {
-  loading: boolean;
-  error: string | null | Error;
+  loading?: boolean;
+  error?: string | null | Error;
   user: User | null;
   token: string | null;
 }

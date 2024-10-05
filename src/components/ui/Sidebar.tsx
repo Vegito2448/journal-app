@@ -66,7 +66,7 @@ export const Sidebar = () => {
       >
         <FaRegCalendar
           size={100}
-          title="New Entry"
+          title="Add Note"
         />
         <p
           className="mt-5"

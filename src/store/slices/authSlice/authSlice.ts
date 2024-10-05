@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, SerializedError } from "@reduxjs/toolkit";
 import { AuthState } from "../../../types";
 import { userLogin, userLogout, userRegister } from "./actions";
 
-const initialState: AuthState = {
+export const initialAuthState: AuthState = {
   loading: false,
   error: null,
   user: null,
@@ -16,8 +16,9 @@ const handlePending = (state: AuthState) => {
 
 const handleFulfilled = (state: AuthState, action: PayloadAction<AuthState>) => {
   state.loading = false;
-  state.user = action.payload.user;
-  state.token = action.payload.token;
+  state.user = action.payload?.user || null;
+  state.error = action.payload?.error || null;
+  state.token = action.payload?.token || null;
 };
 
 const handleRejected = (state: AuthState, action: PayloadAction<unknown, string, {
@@ -39,12 +40,12 @@ const handleRejected = (state: AuthState, action: PayloadAction<unknown, string,
   state.error = error || null;
 };
 
-const handleLogout = () => initialState;
+const handleLogout = () => initialAuthState;
 
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState,
+  initialState: initialAuthState,
   reducers: {
     logoutUser: handleLogout,
     login: handleFulfilled,
@@ -55,7 +56,7 @@ const authSlice = createSlice({
       .addCase(userLogin.fulfilled, handleFulfilled)
       .addCase(userLogin.rejected, handleRejected)
       .addCase(userRegister.pending, handlePending)
-      .addCase(userRegister.fulfilled, handleFulfilled)
+      .addCase(userRegister.fulfilled, (handleFulfilled))
       .addCase(userRegister.rejected, handleRejected)
       .addCase(userLogout.pending, handlePending)
       .addCase(userLogout.fulfilled, handleLogout)
