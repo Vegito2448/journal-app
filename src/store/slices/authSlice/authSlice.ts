@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, PayloadAction, SerializedError } from "@reduxjs/toolkit";
 import { AuthState } from "../../../types";
 import { userLogin, userLogout, userRegister } from "./actions";
@@ -16,9 +17,9 @@ const handlePending = (state: AuthState) => {
 
 const handleFulfilled = (state: AuthState, action: PayloadAction<AuthState>) => {
   state.loading = false;
-  state.user = action.payload?.user || null;
-  state.error = action.payload?.error || null;
-  state.token = action.payload?.token || null;
+  state.user = action?.payload?.user || null;
+  state.error = action?.payload?.error || null;
+  state.token = action?.payload?.token || null;
 };
 
 const handleRejected = (state: AuthState, action: PayloadAction<unknown, string, {
@@ -53,10 +54,10 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(userLogin.pending, handlePending)
-      .addCase(userLogin.fulfilled, handleFulfilled)
+      .addCase(userLogin.fulfilled, handleFulfilled as any)
       .addCase(userLogin.rejected, handleRejected)
       .addCase(userRegister.pending, handlePending)
-      .addCase(userRegister.fulfilled, (handleFulfilled))
+      .addCase(userRegister.fulfilled, handleFulfilled as any)
       .addCase(userRegister.rejected, handleRejected)
       .addCase(userLogout.pending, handlePending)
       .addCase(userLogout.fulfilled, handleLogout)
