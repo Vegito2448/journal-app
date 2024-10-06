@@ -12,26 +12,24 @@ export const mainPath = import.meta.env.DEV ? "/" : "/journal-app/";
 
 export const allRoutes: RouteObject[] = [
   {
-    path: `${mainPath}auth/`,
+    path: `/auth/`,
     element: <PublicRoute children={<AuthLayout />} />,
     children: authRoutes
   },
   {
-    path: `${mainPath}`,
+    path: `/`,
     element: <PrivateRoute children={<MainLayout />} />,
     children: mainRoutes
   },
   {
     path: "*",
     element: <Navigate
-      to={`${mainPath}auth/login/`}
+      to={`/auth/login/`}
       replace
     />
 
   }
 ];
 
-export const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter(allRoutes, {
-  basename: mainPath
-});
+export const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter(allRoutes);
 
