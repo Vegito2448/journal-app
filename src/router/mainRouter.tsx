@@ -31,5 +31,7 @@ export const allRoutes: RouteObject[] = [
   }
 ];
 
-export const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter(allRoutes);
+export const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter(allRoutes, {
+  basename: mainPath
+});
 
