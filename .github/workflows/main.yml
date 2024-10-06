@@ -38,6 +38,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build
+        env:
+          VITE_APIKEY: ${{secrets.VITE_APIKEY}}
+          VITE_AUTHDOMAIN: ${{secrets.VITE_AUTHDOMAIN}}
+          VITE_PROJECTID: ${{secrets.VITE_PROJECTID}}
+          VITE_STORAGEBUCKET: ${{secrets.VITE_STORAGEBUCKET}}
+          VITE_MESSAGINGSENDERID: ${{secrets.VITE_MESSAGINGSENDERID}}
+          VITE_APPID: ${{secrets.VITE_APPID}}
+          VITE_MEASUREMENTID: ${{secrets.VITE_MEASUREMENTID}}
         run: npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v4
