@@ -8,7 +8,7 @@ import { PrivateRoute } from "./PrivateRoute";
 import { PublicRoute } from "./PublicRoute";
 import { authRoutes, mainRoutes } from "./routesConfig";
 
-export const mainPath = import.meta.env.DEV ? "/" : "journal-app/";
+export const mainPath = import.meta.env.DEV ? "/" : "/journal-app/";
 
 export const allRoutes: RouteObject[] = [
   {
